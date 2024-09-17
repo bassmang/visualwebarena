@@ -3,7 +3,7 @@ from typing import Any
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoImageProcessor, AutoProcessor
 from peft import PeftModel
-from PIL import Image
+from PIL import Image as PILImage
 import ast
 
 try:
@@ -32,6 +32,8 @@ SYSTEM_MESSAGE = '''You are an expert at completing instructions on Webpage scre
 {"action": "enter", "action_natural_language": str, "idx": <element_idx chosen from the second screen>}
 {"action": "type", "action_natural_language": str, "idx": <element_idx chosen from the second screen>, "value": <the text to enter>}
 {"action": "select", "action_natural_language": str, "idx": <element_idx chosen from the second screen>, "value": <the option to select>}
+{"action": "scroll [up]", "action_natural_language": str}
+{"action": "scroll [down]", "action_natural_language": str}
 Your final answer must be in the above format.
 '''
 
@@ -103,8 +105,8 @@ def call_llm(
             _attn_implementation='flash_attention_2'
         ).to('cuda')
         
-        image_path = "/home/gbassman/LAM/webarena/webarena_image/current_image.png"
-        image = Image.open(image_path)
+        image_path = "/home/gbassman/LAM/visualwebarena/vwebarena_image/current_image.png"
+        image = PILImage.open(image_path)
         
         prompt = processor.tokenizer.apply_chat_template(
             [system_message, prompt_message], tokenize=False, add_generation_prompt=True
