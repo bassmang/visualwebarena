@@ -5,6 +5,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, AutoImageProcessor
 from peft import PeftModel
 from PIL import Image as PILImage
 import ast
+from llms.lm_config import MODEL_DIR, IMAGE_PATH
 
 try:
     from vertexai.preview.generative_models import Image
@@ -96,17 +97,15 @@ def call_llm(
             'content': SYSTEM_MESSAGE,
         }
         prompt_message = prompt
-        model_id = "/home/gbassman/LAM/m2w_train_visible_ckpts_phi3.5_stage2_freeze"
-        processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+        processor = AutoProcessor.from_pretrained(MODEL_DIR, trust_remote_code=True)
         model = AutoModelForCausalLM.from_pretrained(
-            model_id, 
+            MODEL_DIR, 
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
             _attn_implementation='flash_attention_2'
         ).to('cuda')
         
-        image_path = "/home/gbassman/LAM/visualwebarena/vwebarena_image/current_image.png"
-        image = PILImage.open(image_path)
+        image = PILImage.open(IMAGE_PATH)
         
         prompt = processor.tokenizer.apply_chat_template(
             [system_message, prompt_message], tokenize=False, add_generation_prompt=True

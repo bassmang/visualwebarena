@@ -7,6 +7,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any
 
+MODEL_DIR = "/home/gbassman/LAM/webagent_output_liliwu"
+IMAGE_PATH = "/home/gbassman/LAM/visualwebarena/vwebarena_image/current_image.png"
 
 @dataclass(frozen=True)
 class LMConfig:

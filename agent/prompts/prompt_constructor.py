@@ -10,6 +10,7 @@ from browser_env.utils import StateInfo, pil_to_b64, pil_to_vertex
 from llms import lm_config
 from llms.tokenizers import Tokenizer
 from llms.utils import APIInput
+from llms.lm_config import IMAGE_PATH
 
 
 class Instruction(TypedDict):
@@ -252,7 +253,7 @@ class CoTPromptConstructor(PromptConstructor):
         # Add image data
         image_array = state_info["observation"]['image']
         image = Image.fromarray(image_array)
-        image.save("/home/gbassman/LAM/visualwebarena/vwebarena_image/current_image.png")
+        image.save(IMAGE_PATH)
         
         # Get acc_tree in yadongs format
         acc_tree = obs
