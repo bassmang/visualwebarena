@@ -135,7 +135,14 @@ def call_llm(
             response += "type [" + str(generated_dict["idx"]) + "] [" + generated_dict["value"] + "] [1]"
         elif generated_dict["action"] == "stop":
             response += "stop [" + generated_dict["value"] + "]"
-        
+        elif generated_dict["action"] == "scroll [down]" or generated_dict["action"] == "scroll [up]":
+            response += generated_dict["action"]
+        elif generated_dict["action"] == "scroll":  ## This format showed up in Lili's model but should not?
+            response += "scroll [" + generated_dict["idx"] + "]"
+        else:
+            raise ValueError(
+                f"Action {generated_dict['action']} not supported"
+            )
         response += "```"
 
     else:
