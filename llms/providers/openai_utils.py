@@ -266,10 +266,11 @@ def generate_from_openai_chat_completion(
 
     subscription = os.getenv("AZURE_OPENAI_SUB")
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
+    api_version = "2024-06-01"
     retries = 20
 
     for _ in range(retries):
-        url = f'https://{subscription}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-01'
+        url = f'https://{subscription}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version={api_version}'
         headers = {'Content-Type': 'application/json', 'api-key': api_key}
         data = {
             "messages": messages,
