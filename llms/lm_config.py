@@ -7,7 +7,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any
 
-MODEL_DIR = "/home/gbassman/LAM/webagent_output_liliwu"
+#MODEL_DIR = "/home/gbassman/LAM/webagent_output_liliwu"
+MODEL_DIR = "/home/gbassman/LAM/m2w_train_visible_ckpts_phi3.5_stage2_freeze"
 IMAGE_PATH = "/home/gbassman/LAM/visualwebarena/vwebarena_image/current_image.png"
 
 @dataclass(frozen=True)

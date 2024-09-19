@@ -266,19 +266,27 @@ def generate_from_openai_chat_completion(
 
     subscription = os.getenv("AZURE_OPENAI_SUB")
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
+    retries = 20
 
-    url = f'https://{subscription}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2023-03-15-preview'
-    headers = {'Content-Type': 'application/json', 'api-key': api_key}
-    data = {
-        "messages": messages,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "top_p": top_p,
-    }
+    for _ in range(retries):
+        url = f'https://{subscription}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-01'
+        headers = {'Content-Type': 'application/json', 'api-key': api_key}
+        data = {
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "top_p": top_p,
+        }
 
-    resp = requests.post(url, json=data, headers=headers)
-    answer = resp.json()['choices'][0]['message']['content']
-    return answer
+        resp = requests.post(url, json=data, headers=headers).json()
+        if resp.get('error'):
+            logging.warning(f"OpenAI API error: {resp['error']['message']}")
+            time.sleep(10)
+            continue
+        answer = resp['choices'][0]['message']['content']
+        return answer
+
+    return "```stop [Too many azure openai retries]```"
 
 
 @retry_with_exponential_backoff
