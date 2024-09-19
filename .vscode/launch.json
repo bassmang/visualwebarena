@@ -1,0 +1,27 @@
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Run with LAM Environment",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/gbassman/LAM/visualwebarena/run.py",  // Explicitly set the path to the script
+            "console": "integratedTerminal",
+            "args": [
+                "--instruction_path", "agent/prompts/jsons/p_cot_id_actree_3s.json",
+                "--test_start_idx", "44",
+                "--test_end_idx", "45",
+                "--model", "gpt-4o",
+                "--result_dir", "gb_res7",
+                //"--provider", "openai",
+                "--provider", "yadong_model",
+                "--observation_type", "image_som",
+                "--test_config_base_dir", "config_files/wa/test_webarena",
+                "--action_set_tag", "som"
+            ],
+            "pythonPath": "/home/gbassman/anaconda3/envs/VWA/bin/python",
+            "cwd": "/home/gbassman/LAM/visualwebarena"  // Set the working directory
+        }
+    ]
+}
