@@ -7,6 +7,7 @@ import os
 import random
 import time
 from typing import Any
+import requests
 
 import aiolimiter
 import openai
@@ -250,18 +251,33 @@ def generate_from_openai_chat_completion(
     context_length: int,
     stop_token: str | None = None,
 ) -> str:
-    if "OPENAI_API_KEY" not in os.environ:
-        raise ValueError(
-            "OPENAI_API_KEY environment variable must be set when using OpenAI API."
-        )
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        top_p=top_p,
-    )
-    answer: str = response.choices[0].message.content
+    #if "OPENAI_API_KEY" not in os.environ:
+    #    raise ValueError(
+    #        "OPENAI_API_KEY environment variable must be set when using OpenAI API."
+    #    )
+    #response = client.chat.completions.create(
+    #    model=model,
+    #    messages=messages,
+    #    temperature=temperature,
+    #    max_tokens=max_tokens,
+    #    top_p=top_p,
+    #)
+    #answer: str = response.choices[0].message.content
+
+    subscription = os.getenv("AZURE_OPENAI_SUB")
+    api_key = os.getenv("AZURE_OPENAI_API_KEY")
+
+    url = f'https://{subscription}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2023-03-15-preview'
+    headers = {'Content-Type': 'application/json', 'api-key': api_key}
+    data = {
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "top_p": top_p,
+    }
+
+    resp = requests.post(url, json=data, headers=headers)
+    answer = resp.json()['choices'][0]['message']['content']
     return answer
 
 
