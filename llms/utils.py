@@ -39,6 +39,14 @@ SYSTEM_MESSAGE = '''You are an expert at completing instructions on Webpage scre
 Your final answer must be in the above format.
 '''
 
+processor = AutoProcessor.from_pretrained(MODEL_DIR, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL_DIR, 
+    torch_dtype=torch.bfloat16,
+    trust_remote_code=True,
+    _attn_implementation='flash_attention_2'
+).to('cuda')
+
 def call_llm(
     lm_config: lm_config.LMConfig,
     prompt: APIInput,
@@ -98,13 +106,6 @@ def call_llm(
             'content': SYSTEM_MESSAGE,
         }
         prompt_message = prompt
-        processor = AutoProcessor.from_pretrained(MODEL_DIR, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(
-            MODEL_DIR, 
-            torch_dtype=torch.bfloat16,
-            trust_remote_code=True,
-            _attn_implementation='flash_attention_2'
-        ).to('cuda')
         
         image = PILImage.open(IMAGE_PATH)
         
@@ -124,6 +125,14 @@ def call_llm(
             skip_special_tokens=True,
             clean_up_tokenization_spaces=False,
         )
+        
+        ##### TEMPORARY WHEN STOP RETURNS TWO ACTIONS
+        if "\'action\': \'stop\'" in generated_texts[0]:
+            response = "```stop []```"
+            print("RESPONSE\n\n" + response + "\n\nEND RESPONSE")
+            return response
+        ##### END TEMPORARY
+        
         generated_dict = ast.literal_eval(generated_texts[0].strip().strip('.'))
         
         # Reformat to WebArena format
