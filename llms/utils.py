@@ -35,6 +35,7 @@ SYSTEM_MESSAGE = '''You are an expert at completing instructions on Webpage scre
 {"action": "select", "action_natural_language": str, "idx": <element_idx chosen from the second screen>, "value": <the option to select>}
 {"action": "scroll [up]", "action_natural_language": str}
 {"action": "scroll [down]", "action_natural_language": str}
+{"action": "stop", "action_natural_language": str}
 Your final answer must be in the above format.
 '''
 
@@ -139,6 +140,8 @@ def call_llm(
             response += generated_dict["action"]
         elif generated_dict["action"] == "scroll":  ## This format showed up in Lili's model but should not?
             response += "scroll [" + generated_dict["idx"] + "]"
+        elif generated_dict["action"] == "stop":
+            response += "stop []"
         else:
             raise ValueError(
                 f"Action {generated_dict['action']} not supported"
