@@ -126,13 +126,6 @@ def call_llm(
             clean_up_tokenization_spaces=False,
         )
         
-        ##### TEMPORARY WHEN STOP RETURNS TWO ACTIONS
-        if "\'action\': \'stop\'" in generated_texts[0]:
-            response = "```stop []```"
-            print("RESPONSE\n\n" + response + "\n\nEND RESPONSE")
-            return response
-        ##### END TEMPORARY
-        
         generated_dict = ast.literal_eval(generated_texts[0].strip().strip('.'))
         
         # Reformat to WebArena format
@@ -143,8 +136,6 @@ def call_llm(
             response += "hover [" + str(generated_dict["idx"]) + "]"
         elif generated_dict["action"] == "type":
             response += "type [" + str(generated_dict["idx"]) + "] [" + generated_dict["value"] + "] [1]"
-        elif generated_dict["action"] == "stop":
-            response += "stop [" + generated_dict["value"] + "]"
         elif generated_dict["action"] == "scroll [down]" or generated_dict["action"] == "scroll [up]":
             response += generated_dict["action"]
         elif generated_dict["action"] == "scroll":  ## This format showed up in Lili's model but should not?
