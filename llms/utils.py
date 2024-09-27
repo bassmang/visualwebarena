@@ -6,6 +6,7 @@ from peft import PeftModel
 from PIL import Image as PILImage
 import ast
 from llms.lm_config import MODEL_DIR, IMAGE_PATH
+import warnings
 
 try:
     from vertexai.preview.generative_models import Image
@@ -113,19 +114,21 @@ def call_llm(
             [system_message, prompt_message], tokenize=False, add_generation_prompt=True
         )
         
-        # Create a batch combining text and image inputs
-        batch = processor(prompt, images=[image], return_tensors="pt").to('cuda')
-        
-        # Run inference
-        with torch.no_grad():
-            generated_ids = model.generate(**batch, eos_token_id=processor.tokenizer.eos_token_id, max_new_tokens=64)
-        
-        generated_texts = processor.batch_decode(
-            generated_ids[:, batch['input_ids'].size(1) :],
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False,
-        )
-        
+        # Suppress the specific warning
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Phi-3-V modifies `input_ids` in-place and the tokens indicating images will be removed after model forward.")
+            # Create a batch combining text and image inputs
+            batch = processor(prompt, images=[image], return_tensors="pt").to('cuda')
+
+            # Run inference
+            with torch.no_grad():
+                generated_ids = model.generate(**batch, eos_token_id=processor.tokenizer.eos_token_id, max_new_tokens=64)
+
+            generated_texts = processor.batch_decode(
+                generated_ids[:, batch['input_ids'].size(1):],
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )
         generated_dict = ast.literal_eval(generated_texts[0].strip().strip('.'))
         
         # Reformat to WebArena format
