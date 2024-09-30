@@ -13,6 +13,7 @@ import tempfile
 import time
 from pathlib import Path
 from typing import List
+import sys
 
 import openai
 import requests
@@ -42,10 +43,6 @@ from evaluation_harness import evaluator_router, image_utils
 
 DATASET = os.environ["DATASET"]
 
-LOG_FOLDER = "log_files"
-Path(LOG_FOLDER).mkdir(parents=True, exist_ok=True)
-LOG_FILE_NAME = f"{LOG_FOLDER}/log_{time.strftime('%Y%m%d%H%M%S', time.localtime())}_{random.randint(0, 10000)}.log"
-
 logger = logging.getLogger("logger")
 logger.setLevel(logging.INFO)
 
@@ -53,14 +50,9 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 logger.addHandler(console_handler)
 
-file_handler = logging.FileHandler(LOG_FILE_NAME)
-file_handler.setLevel(logging.DEBUG)
-logger.addHandler(file_handler)
-
 # Set the log format
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(formatter)
-file_handler.setFormatter(formatter)
 
 
 def config() -> argparse.Namespace:
@@ -394,6 +386,7 @@ def test(
                             intent,
                             images=images,
                             meta_data=meta_data,
+                            logger=logger,
                         )
                     except ValueError as e:
                         # get the error message
@@ -486,10 +479,19 @@ def prepare(args: argparse.Namespace) -> None:
     if not (Path(result_dir) / "traces").exists():
         (Path(result_dir) / "traces").mkdir(parents=True)
 
-    # log the log file
-    with open(os.path.join(result_dir, "log_files.txt"), "a+") as f:
-        f.write(f"{LOG_FILE_NAME}\n")
+    # Now that result_dir is ready, set up the log file in result_dir
+    LOG_FILE_NAME = f"{args.result_dir}/console.log"
 
+    # Create the log file handler and add it to the logger
+    file_handler = logging.FileHandler(LOG_FILE_NAME)
+    file_handler.setLevel(logging.DEBUG)
+    logger.addHandler(file_handler)
+
+    # Set the log format for the file handler
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+
+    logger.info(f"Logging to file: {LOG_FILE_NAME}")
 
 def get_unfinished(config_files: list[str], result_dir: str) -> list[str]:
     result_files = glob.glob(f"{result_dir}/*.html")

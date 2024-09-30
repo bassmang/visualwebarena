@@ -7,12 +7,7 @@ from PIL import Image as PILImage
 import ast
 from llms.lm_config import MODEL_DIR, IMAGE_PATH
 import warnings
-
-try:
-    from vertexai.preview.generative_models import Image
-    from llms import generate_from_gemini_completion
-except:
-    print('Google Cloud not set up, skipping import of vertexai.preview.generative_models.Image and llms.generate_from_gemini_completion')
+import logging
 
 from llms import (
     generate_from_huggingface_completion,
@@ -51,6 +46,7 @@ model = AutoModelForCausalLM.from_pretrained(
 def call_llm(
     lm_config: lm_config.LMConfig,
     prompt: APIInput,
+    logger: logging.Logger = None,
 ) -> str:
     response: str
     if lm_config.provider == "openai":
@@ -156,5 +152,5 @@ def call_llm(
             f"Provider {lm_config.provider} not implemented"
         )
 
-    print("RESPONSE\n\n" + response + "\n\nEND RESPONSE")
+    logger.info(f"[Response]: {response}")
     return response

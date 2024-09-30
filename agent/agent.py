@@ -1,6 +1,7 @@
 import argparse
 import json
 from typing import Any, Optional
+import logging
 
 import tiktoken
 from beartype import beartype
@@ -127,7 +128,7 @@ class PromptAgent(Agent):
     @beartype
     def next_action(
         self, trajectory: Trajectory, intent: str, meta_data: dict[str, Any], images: Optional[list[Image.Image]] = None,
-        output_response: bool = False
+        output_response: bool = False, logger: logging.Logger = None
     ) -> Action:
         # Create page screenshot image for multimodal models.
         if self.multimodal_inputs:
@@ -165,7 +166,7 @@ class PromptAgent(Agent):
         lm_config = self.lm_config
         n = 0
         while True:
-            response = call_llm(lm_config, prompt)
+            response = call_llm(lm_config, prompt, logger)
             force_prefix = self.prompt_constructor.instruction[
                 "meta_data"
             ].get("force_prefix", "")
